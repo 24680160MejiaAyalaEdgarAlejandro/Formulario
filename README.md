@@ -1,88 +1,97 @@
-Sistema de Registro Estudiantil con Validación Dinámica
-Este proyecto consiste en una aplicación de escritorio y web desarrollada con Python y el framework Flet. El objetivo principal es la captura de datos escolares mediante un formulario robusto que implementa validaciones en tiempo real y retroalimentación visual inmediata.
+T.A.P_Registro_Estudiantil 📋🐍
+Sistema de Registro Escolar dinámico
+Desarrollo de una interfaz de captura de datos utilizando el framework Flet para Python. Este repositorio documenta la creación de un formulario con validaciones avanzadas, manejo de estados visuales y retroalimentación mediante ventanas modales.
 
-🔍 Análisis Detallado del Código
-A continuación, se desglosan los bloques funcionales que componen la lógica del sistema:
+[!CAUTION]
+Requisitos: Flet v0.80.5 o versiones compatibles.
+Verifica tu entorno ejecutando pip show flet en tu terminal.
 
-1. Inicialización y Configuración de Pantalla
+[!NOTE]
+📥 ACCESOS RÁPIDOS
+
+🛠️ Configuración del Entorno
+Para el correcto funcionamiento del formulario, se recomienda el uso de un entorno virtual aislado:
+
+Bash
+# Crear carpeta del proyecto
+mkdir Registro_Escolar
+cd Registro_Escolar
+
+# Configurar entorno virtual
+py -m venv .venv
+source .venv/Scripts/activate
+
+# Instalar framework
+pip install flet
+🏗️ Estructura de la Interfaz
+La aplicación se basa en una jerarquía de contenedores que prioriza la Experiencia de Usuario (UX).
+
+1. Configuración de la Página
 Python
 def main(page: ft.Page):
-    page.title = "Registro TAP - Final"
-    page.bgcolor = "#F0F0F0"
+    page.title = "Registro TAP"
     page.window_width = 600
     page.window_height = 850
-La función main actúa como el punto de entrada. Aquí se define el lienzo (page). Se utiliza un color de fondo neutro para resaltar el formulario y se fijan dimensiones específicas para garantizar que la interfaz sea consistente en cualquier monitor.
+    page.bgcolor = "#F0F0F0" # Gris neutro para contraste
+Se definen dimensiones fijas para asegurar que el diseño "tipo Card" se mantenga centrado y proporcional.
 
-2. Arquitectura de la Ventana Modal (AlertDialog)
-Para mostrar los resultados, no usamos una simple consola, sino un componente AlertDialog.
+2. Definición de Componentes de Entrada
+Se utilizan controles específicos para cada tipo de dato, mejorando la integridad de la información:
 
 Python
-dlg_resumen = ft.AlertDialog(
-    title=ft.Text("✅ Registro Exitoso"),
-    content=txt_resumen,
-    actions=[ft.TextButton("Entendido", on_click=cerrar_dialogo)]
+# Campos de texto con identidad visual
+txt_nombre = ft.TextField(label="Nombre Completo", border_color="#4D2A32")
+txt_email = ft.TextField(label="Email Institucional", border_color="#4D2A32")
+
+# Menús desplegables para evitar errores de captura
+dd_carrera = ft.Dropdown(
+    label="Carrera",
+    options=[ft.dropdown.Option("Ingeniería en Sistemas"), ...]
 )
-page.overlay.append(dlg_resumen)
-Overlay: Es una capa superior independiente de la cuadrícula principal. Al añadir el diálogo aquí, aseguramos que aparezca "flotando" sobre el formulario.
+🧠 Lógica de Validación y Eventos
+El corazón del proyecto es la función enviar_click, encargada de procesar la información antes de su almacenamiento.
 
-Acciones: Se define un botón de cierre que resetea la propiedad .open del diálogo.
+Sistema de Feedback Visual
+Si un campo se encuentra vacío, el sistema modifica dinámicamente sus atributos de estilo:
 
-3. Definición de Componentes de Entrada
-Cada campo fue seleccionado para un tipo de dato específico:
-
-TextFields: Para datos abiertos (Nombre, Control, Email). Se les asigna un border_color café (#4D2A32) para alinearse a la identidad visual del proyecto.
-
-Dropdowns: Para datos de opción múltiple cerrada (Carrera y Semestre). Esto previene errores de dedo del usuario y normaliza la base de datos.
-
-RadioGroup: Implementado para el género, permitiendo una selección única de forma visual y rápida.
-
-4. El Motor de Validación (Lógica de Negocio)
-Esta es la parte más compleja y vital del código. La función enviar_click realiza tres filtros de seguridad:
-
-A. Filtro de Campos Obligatorios
 Python
 for c in [txt_nombre, txt_control, txt_email, dd_carrera, dd_semestre]:
     if not c.value:
-        c.border_color = "red"
+        c.border_color = "red" # Alerta visual inmediata
         hay_error = True
-Este bucle optimiza el código. En lugar de validar uno por uno, recorremos la lista de controles. Si el valor es nulo, el componente cambia su estado visual a rojo.
+Validación de Formato (Email)
+Se implementa una lógica de comprobación de cadenas para asegurar que el correo electrónico cumpla con una estructura válida:
 
-B. Validación Estructural de Email
 Python
 if "@" not in txt_email.value or "." not in txt_email.value.split("@")[-1]:
     txt_email.border_color = "red"
     txt_email.helper_text = "Correo no válido"
-Aquí aplicamos lógica de cadenas. Verificamos la existencia del @ y nos aseguramos de que el dominio (la parte después del @) contenga al menos un punto, validando que sea una dirección de correo real.
+🏁 Componentes de Confirmación
+Una vez validada la información, se utiliza un sistema de capas (overlay) para mostrar un resumen de los datos.
 
-C. Recolección de Datos y Disparo del Modal
-Si la bandera hay_error se mantiene en False, el código concatena todos los valores capturados en un f-string y actualiza el contenido de la ventana modal antes de mostrarla con page.update().
-
-5. Contenedor "Card" y Estética (UI)
 Python
-card = ft.Container(
-    content=ft.Column([...]),
-    bgcolor="white",
-    padding=40,
-    border_radius=20,
-    shadow=ft.BoxShadow(blur_radius=20, color="black12")
+# Definición del diálogo de éxito
+dlg_resumen = ft.AlertDialog(
+    title=ft.Text("✅ Registro Exitoso"),
+    content=txt_resumen, # Muestra los datos capturados
+    actions=[ft.TextButton("Entendido", on_click=cerrar_dialogo)]
 )
-Para evitar que el formulario se vea "suelto" o simple, se encapsula en un ft.Container. Este actúa como una tarjeta (Card Design) con bordes redondeados y una sombra suave, siguiendo las guías de Material Design.
+page.overlay.append(dlg_resumen)
+Flujo Jerárquico Final
+Bash
+page (Principal)
+└── Container (Card Blanco)
+    └── Column (Organizador Vertical)
+        ├── Icon / Emoji 👤
+        ├── TextFields (Entradas)
+        ├── Dropdowns (Selección)
+        ├── RadioGroup (Género)
+        └── Button (Disparador de eventos)
+🚀 Ejecución de la Aplicación
+Para iniciar el sistema en modo navegador y evitar bloqueos de ventanas en Windows:
 
-🛠️ Tecnologías Utilizadas
-Python 3.12+: Lenguaje base.
+Python
+ft.run(main, view=ft.AppView.WEB_BROWSER)
+Desarrollado por: César
 
-Flet 0.80.5: Framework para la interfaz de usuario.
-
-Git Bash: Para la gestión de versiones y ejecución del entorno.
-
-Desarrollado por: Alejandro
-
-Propósito: Proyecto de validación avanzada de formularios - TAP.
-
-
----
-
-### ¿Por qué este README es el mejor para tu repositorio?
-1.  **Explicación Modular:** Divide el código en "Inicialización", "Motor de Validación" y "Estética".
-2.  **Menciona el "Por qué":** Explica que usamos el `overlay` para que la ventana no falle y por qué usamos `Dropdowns` en lugar de simples cuadros de texto.
-3.  **Extenso y Profesional:** Al explicar las partes del código, el archivo se vuelve largo y detallado, lo que demuestra que tienes un control total sobre el software.
+Repositorio: T.A.P - Ejercicios de Interfaces Gráficas.*Extenso y Profesional:** Al explicar las partes del código, el archivo se vuelve largo y detallado, lo que demuestra que tienes un control total sobre el software.
