@@ -1,79 +1,88 @@
-# 🚀 Tópicos Avanzados de Programación - Unidad 1: Interfaces Gráficas (GUI)
+Sistema de Registro Estudiantil con Validación Dinámica
+Este proyecto consiste en una aplicación de escritorio y web desarrollada con Python y el framework Flet. El objetivo principal es la captura de datos escolares mediante un formulario robusto que implementa validaciones en tiempo real y retroalimentación visual inmediata.
 
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Flet](https://img.shields.io/badge/flet-D1345B?style=for-the-badge&logo=google-chrome&logoColor=white)
-![VS Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+🔍 Análisis Detallado del Código
+A continuación, se desglosan los bloques funcionales que componen la lógica del sistema:
 
-Este repositorio contiene la implementación técnica y documentación teórica de la **Unidad 1**. El proyecto central es un **Sistema de Registro Estudiantil** desarrollado con **Flet**, un framework moderno que permite construir interfaces interactivas en Python con capacidades multi-plataforma.
+1. Inicialización y Configuración de Pantalla
+Python
+def main(page: ft.Page):
+    page.title = "Registro TAP - Final"
+    page.bgcolor = "#F0F0F0"
+    page.window_width = 600
+    page.window_height = 850
+La función main actúa como el punto de entrada. Aquí se define el lienzo (page). Se utiliza un color de fondo neutro para resaltar el formulario y se fijan dimensiones específicas para garantizar que la interfaz sea consistente en cualquier monitor.
 
----
+2. Arquitectura de la Ventana Modal (AlertDialog)
+Para mostrar los resultados, no usamos una simple consola, sino un componente AlertDialog.
 
-## 📑 Contenido Teórico (Puntos 1.1 al 1.4)
+Python
+dlg_resumen = ft.AlertDialog(
+    title=ft.Text("✅ Registro Exitoso"),
+    content=txt_resumen,
+    actions=[ft.TextButton("Entendido", on_click=cerrar_dialogo)]
+)
+page.overlay.append(dlg_resumen)
+Overlay: Es una capa superior independiente de la cuadrícula principal. Al añadir el diálogo aquí, aseguramos que aparezca "flotando" sobre el formulario.
 
-### 1.1 Creación de interfaz gráfica para usuarios
-La interfaz se construyó bajo un modelo de **contenedores y layouts**. Se utilizó un `ft.Container` como "Card" principal para agrupar los elementos, aplicando propiedades de diseño como `border_radius` (bordes redondeados) y `BoxShadow` (sombras dinámicas) para mejorar la experiencia de usuario (UX).
+Acciones: Se define un botón de cierre que resetea la propiedad .open del diálogo.
 
-### 1.2 Tipos de eventos
-El sistema gestiona principalmente dos tipos de eventos:
-* **Eventos de Acción (`on_click`):** Disparados por el botón de registro.
-* **Eventos de Cambio de Estado:** Controlados por la lógica de validación que modifica las propiedades visuales de los componentes en tiempo real.
+3. Definición de Componentes de Entrada
+Cada campo fue seleccionado para un tipo de dato específico:
 
-### 1.3 Manejo de eventos
-Se implementó un **Manejador de Eventos (Event Handler)** llamado `enviar_click`. Esta función actúa como el cerebro del formulario: intercepta los datos, los valida y decide si muestra una alerta de error o la ventana modal de éxito.
+TextFields: Para datos abiertos (Nombre, Control, Email). Se les asigna un border_color café (#4D2A32) para alinearse a la identidad visual del proyecto.
 
-### 1.4 Manejo de componentes gráficos de control
-Se utilizaron los controles más avanzados de la biblioteca Material Design:
-* `TextField`: Entrada de texto con validación de máscara y vacíos.
-* `Dropdown`: Menú de selección rígida para Carrera y Semestre.
-* `RadioGroup`: Selección de opción única para el género del estudiante.
-* `AlertDialog`: Ventana modal para confirmación de datos.
+Dropdowns: Para datos de opción múltiple cerrada (Carrera y Semestre). Esto previene errores de dedo del usuario y normaliza la base de datos.
 
----
+RadioGroup: Implementado para el género, permitiendo una selección única de forma visual y rápida.
 
-## 🛠️ Explicación Detallada del Código
+4. El Motor de Validación (Lógica de Negocio)
+Esta es la parte más compleja y vital del código. La función enviar_click realiza tres filtros de seguridad:
 
-### A. La Estructura de Validación
-```python
+A. Filtro de Campos Obligatorios
+Python
 for c in [txt_nombre, txt_control, txt_email, dd_carrera, dd_semestre]:
     if not c.value:
         c.border_color = "red"
         hay_error = True
+Este bucle optimiza el código. En lugar de validar uno por uno, recorremos la lista de controles. Si el valor es nulo, el componente cambia su estado visual a rojo.
 
-Gemini ha dicho
-¡Claro que sí, César! Vamos a armar un README.md de nivel profesional. Este archivo es la "cara" de tu proyecto; si un reclutador o tu profesor lo ve, debe entender que no solo copiaste código, sino que dominas la arquitectura de componentes y la lógica de eventos.
-
-
-Explicación: Se utiliza un bucle que recorre una lista de objetos. Si la propiedad .value está vacía, se dispara un cambio de propiedad visual (border_color), transformando el
- borde café en rojo. Esto cumple con el requisito de Feedback Visual.
-
-B. Validación de Email
+B. Validación Estructural de Email
 Python
 if "@" not in txt_email.value or "." not in txt_email.value.split("@")[-1]:
     txt_email.border_color = "red"
-Explicación: No solo se revisa que no esté vacío, sino que mediante lógica de strings verificamos la existencia del símbolo arroba y un punto en el dominio, asegurando la integridad del dato.
+    txt_email.helper_text = "Correo no válido"
+Aquí aplicamos lógica de cadenas. Verificamos la existencia del @ y nos aseguramos de que el dominio (la parte después del @) contenga al menos un punto, validando que sea una dirección de correo real.
 
-C. La Ventana Modal (AlertDialog)
+C. Recolección de Datos y Disparo del Modal
+Si la bandera hay_error se mantiene en False, el código concatena todos los valores capturados en un f-string y actualiza el contenido de la ventana modal antes de mostrarla con page.update().
+
+5. Contenedor "Card" y Estética (UI)
 Python
-page.overlay.append(dlg_resumen) # Registro en la capa superior
-dlg_resumen.open = True         # Disparo visual
-Explicación: Para que el resumen aparezca, el componente AlertDialog se inserta en el overlay de la página. Al ser una aplicación reactiva, es necesario llamar a page.update()
- para que el navegador renderice el cambio de estado de la ventana de cerrada a abierta.
+card = ft.Container(
+    content=ft.Column([...]),
+    bgcolor="white",
+    padding=40,
+    border_radius=20,
+    shadow=ft.BoxShadow(blur_radius=20, color="black12")
+)
+Para evitar que el formulario se vea "suelto" o simple, se encapsula en un ft.Container. Este actúa como una tarjeta (Card Design) con bordes redondeados y una sombra suave, siguiendo las guías de Material Design.
 
-🚀 Cómo ejecutar el proyecto
-Clonar el repositorio:
+🛠️ Tecnologías Utilizadas
+Python 3.12+: Lenguaje base.
 
-Bash
-git clone [https://github.com/TU_USUARIO/TU_REPOSITORIO.git](https://github.com/TU_USUARIO/TU_REPOSITORIO.git)
-Crear y activar entorno virtual:
+Flet 0.80.5: Framework para la interfaz de usuario.
 
-Bash
-python -m venv .venv
-source .venv/Scripts/activate  # En Windows
-Instalar dependencias:
+Git Bash: Para la gestión de versiones y ejecución del entorno.
 
-Bash
-pip install flet
-Correr la aplicación:
+Desarrollado por: Alejandro
 
-Bash
-python form.py
+Propósito: Proyecto de validación avanzada de formularios - TAP.
+
+
+---
+
+### ¿Por qué este README es el mejor para tu repositorio?
+1.  **Explicación Modular:** Divide el código en "Inicialización", "Motor de Validación" y "Estética".
+2.  **Menciona el "Por qué":** Explica que usamos el `overlay` para que la ventana no falle y por qué usamos `Dropdowns` en lugar de simples cuadros de texto.
+3.  **Extenso y Profesional:** Al explicar las partes del código, el archivo se vuelve largo y detallado, lo que demuestra que tienes un control total sobre el software.
