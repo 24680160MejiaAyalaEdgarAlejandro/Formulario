@@ -1,4 +1,4 @@
-# 🚀 REGISTRO ESTUDIANTIL PRO - T.A.P 🎓
+# 🚀 REGISTRO ESTUDIANTIL - T.A.P 🎓
 
 ## 📑 Descripción del Proyecto
 Desarrollo de una interfaz de usuario avanzada para el control de registros estudiantiles. Este proyecto implementa una lógica de **validación reactiva**, donde la interfaz responde en tiempo real a las entradas del usuario, utilizando el framework **Flet** bajo el lenguaje **Python**.
@@ -33,15 +33,19 @@ pip install flet
 A continuación, se explica la arquitectura del sistema dividida en sus 10 componentes fundamentales:
 
 1️⃣ Importación de Librerías y Módulos
+
 Para este proyecto requerimos el núcleo de flet para la interfaz y el módulo re (Regular Expressions) para la validación avanzada de cadenas de texto.
 
-Python
+```Python
 import flet as ft
-import re
+import
+```
+
 2️⃣ Configuración Global de la Página (Viewport)
+
 Se establecen las propiedades de la ventana, el color de fondo y la alineación para que el formulario siempre aparezca centrado perfectamente.
 
-Python
+```Python
 def main(page: ft.Page):
     page.title = "Registro TAP - Pro"
     page.bgcolor = "#F0F0F0"
@@ -49,10 +53,13 @@ def main(page: ft.Page):
     page.window_height = 800
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+```
+    
 3️⃣ Definición de la Ventana Modal (AlertDialog)
+
 Creamos el componente que mostrará el resumen de datos. Se registra en el overlay para que flote sobre la interfaz sin interrumpir el flujo.
 
-Python
+```Python
 txt_resumen = ft.Text("", size=16)
 dlg_resumen = ft.AlertDialog(
     title=ft.Text("✅ Registro Exitoso"),
@@ -60,17 +67,23 @@ dlg_resumen = ft.AlertDialog(
     actions=[ft.TextButton("Cerrar", on_click=lambda _: setattr(dlg_resumen, "open", False) or page.update())]
 )
 page.overlay.append(dlg_resumen)
+```
+
 4️⃣ Componentes de Entrada de Texto (Inputs)
+
 Instanciamos los campos para Nombre, Control y Email, definiendo de antemano el color de borde institucional.
 
-Python
+```Python
 txt_nombre = ft.TextField(label="Nombre Completo", border_color="#4D2A32")
 txt_control = ft.TextField(label="N° de Control", border_color="#4D2A32")
 txt_email = ft.TextField(label="Email Institucional", border_color="#4D2A32")
+```
+
 5️⃣ Menús de Selección Rígida (Dropdowns)
+
 Para evitar errores de escritura en datos críticos, usamos Dropdowns para Carrera y Semestre, garantizando la integridad de los datos.
 
-Python
+```Python
 dd_carrera = ft.Dropdown(
     label="Carrera",
     expand=True,
@@ -81,20 +94,26 @@ dd_semestre = ft.Dropdown(
     width=150,
     options=[ft.dropdown.Option(str(i)) for i in range(1, 11)]
 )
+```
+
 6️⃣ Selección de Opción Única (RadioGroup)
+
 Implementamos el sistema de elección de género mediante botones de radio organizados horizontalmente.
 
-Python
+```Python
 rg_genero = ft.RadioGroup(
     content=ft.Row([
         ft.Radio(value="M", label="Masculino"),
         ft.Radio(value="F", label="Femenino"),
     ], alignment=ft.MainAxisAlignment.CENTER)
 )
+```
+
 7️⃣ Lógica de Validación Reactiva (El "Cerebro")
+
 Aquí es donde ocurre la magia: el código inspecciona cada control. Si detecta un campo vacío, cambia el color a rojo inmediatamente.
 
-Python
+```Python
 def enviar_click(e):
     hay_error = False
     for c in [txt_nombre, txt_control, txt_email, dd_carrera, dd_semestre]:
@@ -103,18 +122,24 @@ def enviar_click(e):
             hay_error = True
         else:
             c.border_color = "#4D2A32"
+```
+            
 8️⃣ Validación Estructural de Email (Regex)
+
 No solo revisamos que no esté vacío; verificamos que la estructura del correo sea válida (usuario@dominio.com).
 
-Python
+```Python
     email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     if txt_email.value and not re.match(email_pattern, txt_email.value):
         txt_email.border_color = "red"
         hay_error = True
+```
+
 9️⃣ Ensamblado del Contenedor "Card"
+
 Agrupamos todos los elementos en un contenedor estilizado con sombras y bordes redondeados para lograr una estética profesional.
 
-Python
+```Python
 card = ft.Container(
     content=ft.Column([
         ft.Text("👤", size=50),
@@ -126,14 +151,21 @@ card = ft.Container(
     ], horizontal_alignment="center", spacing=15),
     bgcolor="white", padding=40, border_radius=20, shadow=ft.BoxShadow(blur_radius=20)
 )
+```
+
 🔟 Punto de Entrada y Renderizado Web
+
 Finalmente, ejecutamos la aplicación forzando la vista en el navegador para máxima compatibilidad.
 
-Python
+```Python
 page.add(card)
 ft.run(main, view=ft.AppView.WEB_BROWSER)
+```
+<img width="432" height="444" alt="image" src="https://github.com/user-attachments/assets/65152a21-3341-484d-a5f6-3871c7988d38" />
+
+
 📸 Código Completo Para Copiar
-Python
+```Python
 import flet as ft
 import re
 
@@ -191,3 +223,5 @@ def main(page: ft.Page):
     ))
 
 ft.run(main, view=ft.AppView.WEB_BROWSER)
+```
+<img width="820" height="437" alt="image" src="https://github.com/user-attachments/assets/b174d41c-a3b1-4158-a80d-ac8323121d2a" />
